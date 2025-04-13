@@ -1,0 +1,1157 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Google Form Creator</title>
+  <style>
+    body {
+      font-family: 'Roboto', Arial, sans-serif;
+      background-color: #f5f5f5;
+      margin: 0;
+      padding: 0;
+    }
+
+    .container {
+      max-width: 768px;
+      margin: 0 auto;
+      padding: 32px 16px;
+      min-height: 100vh;
+    }
+
+    .text-center {
+      text-align: center;
+    }
+
+    .btn {
+      background-color: #1a73e8;
+      color: white;
+      border: none;
+      border-radius: 8px;
+      padding: 12px 24px;
+      font-size: 16px;
+      font-weight: 500;
+      cursor: pointer;
+      transition: background-color 0.2s;
+      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    }
+
+    .btn:hover {
+      background-color: #0d62d0;
+    }
+
+    .btn-sm {
+      padding: 8px 16px;
+      font-size: 14px;
+    }
+
+    .btn-round {
+      border-radius: 50%;
+      width: 40px;
+      height: 40px;
+      padding: 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .btn-blue {
+      background-color: #1a73e8;
+      color: white;
+    }
+
+    .card {
+      background-color: white;
+      border-radius: 8px;
+      box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+      border: 1px solid #e0e0e0;
+      margin-bottom: 24px;
+    }
+
+    .card-header {
+      padding: 24px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      border-bottom: 1px solid #e0e0e0;
+    }
+
+    .card-body {
+      padding: 24px;
+    }
+
+    .form-control {
+      width: 100%;
+      padding: 12px;
+      font-size: 16px;
+      border: 2px solid #e0e0e0;
+      border-radius: 8px;
+      transition: border-color 0.2s;
+    }
+
+    .form-control:focus {
+      outline: none;
+      border-color: #1a73e8;
+    }
+
+    .form-title {
+      font-size: 24px;
+      font-weight: bold;
+      border: none;
+      padding: 4px;
+      width: 100%;
+      color: #202124;
+    }
+
+    .form-title:focus {
+      outline: none;
+      border-bottom: 2px solid #1a73e8;
+    }
+
+    .question-title {
+      font-size: 18px;
+      font-weight: 500;
+      border: none;
+      padding: 4px;
+      width: 100%;
+      color: #202124;
+      margin-bottom: 8px;
+    }
+
+    .question-title:focus {
+      outline: none;
+      border-bottom: 2px solid #1a73e8;
+    }
+
+    .dropdown {
+      position: relative;
+      display: inline-block;
+    }
+
+    .dropdown-menu {
+      position: absolute;
+      right: 0;
+      top: 100%;
+      margin-top: 8px;
+      background-color: white;
+      width: 224px;
+      border-radius: 8px;
+      box-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
+      border: 1px solid #e0e0e0;
+      z-index: 10;
+      display: none;
+    }
+
+    .dropdown-menu.show {
+      display: block;
+    }
+
+    .dropdown-item {
+      display: block;
+      width: 100%;
+      text-align: left;
+      padding: 12px 16px;
+      border: none;
+      background: none;
+      font-size: 14px;
+      cursor: pointer;
+      color: #202124;
+    }
+
+    .dropdown-item:hover {
+      background-color: #f1f8ff;
+      color: #1a73e8;
+    }
+
+    .question-card {
+      border: 1px solid #e0e0e0;
+      border-radius: 8px;
+      padding: 24px;
+      margin-bottom: 24px;
+      transition: box-shadow 0.2s;
+    }
+
+    .question-card:hover {
+      box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
+    }
+
+    .option-row {
+      display: flex;
+      align-items: center;
+      margin-top: 8px;
+    }
+
+    .radio-dot, .checkbox-box {
+      width: 20px;
+      height: 20px;
+      border: 2px solid #1a73e8;
+      margin-right: 12px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .radio-dot {
+      border-radius: 50%;
+    }
+
+    .checkbox-box {
+      border-radius: 2px;
+    }
+
+    .radio-dot-inner {
+      width: 12px;
+      height: 12px;
+      background-color: #1a73e8;
+      border-radius: 50%;
+    }
+
+    .checkbox-box-inner {
+      width: 12px;
+      height: 12px;
+      background-color: #1a73e8;
+      border-radius: 1px;
+    }
+
+    .option-input {
+      border: none;
+      border-bottom: 1px solid #e0e0e0;
+      padding: 4px;
+      width: 100%;
+    }
+
+    .option-input:focus {
+      outline: none;
+      border-bottom: 2px solid #1a73e8;
+    }
+
+    .add-option-btn {
+      background: none;
+      border: none;
+      color: #1a73e8;
+      font-weight: 500;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      margin-top: 12px;
+      padding: 0;
+    }
+
+    .plus-icon {
+      margin-right: 8px;
+      font-size: 18px;
+    }
+
+    .field-placeholder {
+      width: 100%;
+      padding: 8px;
+      border: 1px solid #e0e0e0;
+      border-radius: 4px;
+      background-color: #f8f9fa;
+      margin-top: 8px;
+      color: #5f6368;
+    }
+
+    .text-muted {
+      color: #5f6368;
+    }
+
+    .flex-end {
+      display: flex;
+      justify-content: flex-end;
+      margin-top: 24px;
+    }
+
+    .mt-3 {
+      margin-top: 12px;
+    }
+
+    .questions-container {
+      padding: 24px;
+    }
+
+    .empty-state {
+      padding: 32px;
+      text-align: center;
+      color: #5f6368;
+    }
+  </style>
+</head>
+<body>
+  <div class="container" id="app">
+    <!-- Initial create form button -->
+    <div id="create-form-btn-container" class="text-center">
+      <button id="create-form-btn" class="btn">Create New Form</button>
+    </div>
+
+    <!-- Form name input section -->
+    <div id="form-name-container" class="card" style="display: none;">
+      <div class="card-body">
+        <h2 style="margin-top: 0; color: #202124;">Name your form</h2>
+        <form id="form-name-form">
+          <input 
+            type="text" 
+            id="form-name-input" 
+            class="form-control" 
+            placeholder="Enter form name" 
+            autofocus
+          >
+          <div class="flex-end">
+            <button type="submit" class="btn">Continue</button>
+          </div>
+        </form>
+      </div>
+    </div>
+
+    <!-- Form builder interface -->
+    <div id="form-builder" style="display: none;">
+      <!-- Form header -->
+      <div class="card-header card">
+        <input type="text" id="form-title" class="form-title" value="">
+        <div class="dropdown">
+          <button id="add-field-btn" class="btn btn-round btn-blue" title="Add Field">
+            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <line x1="12" y1="5" x2="12" y2="19"></line>
+              <line x1="5" y1="12" x2="19" y2="12"></line>
+            </svg>
+          </button>
+          <div id="field-dropdown" class="dropdown-menu">
+            <button class="dropdown-item" data-field-type="text">Short Text</button>
+            <button class="dropdown-item" data-field-type="paragraph">Paragraph</button>
+            <button class="dropdown-item" data-field-type="email">Email</button>
+            <button class="dropdown-item" data-field-type="number">Number</button>
+            <button class="dropdown-item" data-field-type="checkbox">Checkbox</button>
+            <button class="dropdown-item" data-field-type="radio">Multiple Choice</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Fields container -->
+      <div class="card" style="border-top: none; border-top-left-radius: 0; border-top-right-radius: 0;">
+        <div id="fields-container" class="questions-container">
+          <div class="empty-state">
+            Click the + button to add your first field
+          </div>
+        </div>
+      </div>
+      
+    </div>
+    
+  </div>
+
+  <script>
+    document.addEventListener('DOMContentLoaded', () => {
+      // DOM Elements
+      const createFormBtnContainer = document.getElementById('create-form-btn-container');
+      const createFormBtn = document.getElementById('create-form-btn');
+      const formNameContainer = document.getElementById('form-name-container');
+      const formNameForm = document.getElementById('form-name-form');
+      const formNameInput = document.getElementById('form-name-input');
+      const formBuilder = document.getElementById('form-builder');
+      const formTitle = document.getElementById('form-title');
+      const addFieldBtn = document.getElementById('add-field-btn');
+      const fieldDropdown = document.getElementById('field-dropdown');
+      const fieldsContainer = document.getElementById('fields-container');
+
+      // State
+      let formFields = [];
+//done
+      // Event Listeners
+      createFormBtn.addEventListener('click', startFormCreation);
+      formNameForm.addEventListener('submit', handleFormNameSubmit);
+      addFieldBtn.addEventListener('click', toggleFieldOptions);
+      
+      // Add field type buttons
+      document.querySelectorAll('.dropdown-item').forEach(item => {
+        item.addEventListener('click', () => {
+          const fieldType = item.getAttribute('data-field-type');
+          addField(fieldType);
+        });
+      });
+
+      // Functions
+      function startFormCreation() {
+        createFormBtnContainer.style.display = 'none';
+        formNameContainer.style.display = 'block';
+      }
+
+      function handleFormNameSubmit(e) {
+        e.preventDefault();
+        const formName = formNameInput.value.trim();
+        if (formName) {
+          formNameContainer.style.display = 'none';
+          formBuilder.style.display = 'block';
+          formTitle.value = formName;
+          
+          // Clear empty state if there are fields
+          updateFieldsDisplay();
+        }
+      }
+
+      function toggleFieldOptions() {
+        fieldDropdown.classList.toggle('show');
+      }
+
+      // Close dropdown when clicking outside
+      window.addEventListener('click', function(event) {
+        if (!event.target.matches('#add-field-btn') && !event.target.closest('#add-field-btn')) {
+          if (fieldDropdown.classList.contains('show')) {
+            fieldDropdown.classList.remove('show');
+          }
+        }
+      });
+
+      function addField(fieldType) {
+        const newField = {
+          id: Date.now(),
+          type: fieldType,
+          label: getDefaultLabel(fieldType),
+          options: (fieldType === 'radio' || fieldType === 'checkbox') ? ['Option 1'] : []
+        };
+        
+        formFields.push(newField);
+        fieldDropdown.classList.remove('show');
+        updateFieldsDisplay();
+      }
+
+      function getDefaultLabel(fieldType) {
+        switch (fieldType) {
+          case 'text': return 'Short Text Question';
+          case 'paragraph': return 'Long Answer Question';
+          case 'email': return 'Email Address';
+          case 'number': return 'Number Question';
+          case 'checkbox': return 'Checkbox Question';
+          case 'radio': return 'Multiple Choice Question';
+          default: return 'Question';
+        }
+      }
+
+      function updateFieldsDisplay() {
+        // Clear the container
+        fieldsContainer.innerHTML = '';
+
+        if (formFields.length === 0) {
+          fieldsContainer.innerHTML = '<div class="empty-state">Click the + button to add your first field</div>';
+          return;
+        }
+
+        // Create field elements
+        formFields.forEach(field => {
+          const fieldElement = createFieldElement(field);
+          fieldsContainer.appendChild(fieldElement);
+        });
+      }
+
+      function createFieldElement(field) {
+        const fieldCard = document.createElement('div');
+        fieldCard.className = 'question-card';
+        fieldCard.dataset.fieldId = field.id;
+
+        const questionTitle = document.createElement('input');
+        questionTitle.type = 'text';
+        questionTitle.className = 'question-title';
+        questionTitle.value = field.label;
+        questionTitle.addEventListener('change', (e) => {
+          updateFieldLabel(field.id, e.target.value);
+        });
+
+        fieldCard.appendChild(questionTitle);
+
+        const fieldContent = renderFieldContent(field);
+        fieldCard.appendChild(fieldContent);
+
+        return fieldCard;
+      }
+
+      function renderFieldContent(field) {
+        const container = document.createElement('div');
+
+        switch (field.type) {
+          case 'text':
+            container.innerHTML = `
+              <input type="text" class="field-placeholder" placeholder="Short text answer" >
+            `;
+            break;
+          case 'paragraph':
+            container.innerHTML = `
+              <textarea class="field-placeholder" style="height: 96px" placeholder="Long answer text"></textarea>
+            `;
+            break;
+          case 'email':
+            container.innerHTML = `
+              <input type="email" class="field-placeholder" placeholder="name@example.com" >
+            `;
+            break;
+          case 'number':
+            container.innerHTML = `
+              <input type="number" class="field-placeholder" placeholder="0">
+            `;
+            break;
+          case 'checkbox':
+            container.className = 'mt-3';
+            renderOptionsField(container, field, 'checkbox');
+            break;
+          case 'radio':
+            container.className = 'mt-3';
+            renderOptionsField(container, field, 'radio');
+            break;
+        }
+
+        return container;
+      }
+
+      function renderOptionsField(container, field, type) {
+        field.options.forEach((option, index) => {
+            const optionRow = document.createElement('div');
+            optionRow.className = 'option-row';
+    
+            const optionIndicator = document.createElement('div');
+            if (type === 'radio') {
+                optionIndicator.className = 'radio-dot';
+                // Only add inner dot if this option is selected
+                if (field.selectedOptions && field.selectedOptions.includes(index)) {
+                    optionIndicator.innerHTML = '<div class="radio-dot-inner"></div>';
+                }
+                // Add click handler for radio buttons
+                optionIndicator.addEventListener('click', () => {
+                    // For radio buttons, only one can be selected
+                    field.selectedOptions = [index];
+                    updateFieldsDisplay();
+                });
+            } else {
+                optionIndicator.className = 'checkbox-box';
+                // Only add inner square if this option is selected
+                if (field.selectedOptions && field.selectedOptions.includes(index)) {
+                    optionIndicator.innerHTML = '<div class="checkbox-box-inner"></div>';
+                }
+                // Add click handler for checkboxes
+                optionIndicator.addEventListener('click', () => {
+                    // Initialize selectedOptions array if it doesn't exist
+                    if (!field.selectedOptions) {
+                        field.selectedOptions = [];
+                    }
+                    
+                    // Toggle selection
+                    if (field.selectedOptions.includes(index)) {
+                        // Remove if already selected
+                        field.selectedOptions = field.selectedOptions.filter(i => i !== index);
+                    } else {
+                        // Add if not selected
+                        field.selectedOptions.push(index);
+                    }
+                    updateFieldsDisplay();
+                });
+            }
+    
+            const optionInput = document.createElement('input');
+            optionInput.type = 'text';
+            optionInput.className = 'option-input';
+            optionInput.value = option;
+            optionInput.addEventListener('change', (e) => {
+                updateOption(field.id, index, e.target.value);
+            });
+    
+            optionRow.appendChild(optionIndicator);
+            optionRow.appendChild(optionInput);
+            container.appendChild(optionRow);
+        });
+    
+        const addOptionBtn = document.createElement('button');
+        addOptionBtn.className = 'add-option-btn';
+        addOptionBtn.innerHTML = '<span class="plus-icon">+</span> Add option';
+        addOptionBtn.addEventListener('click', () => {
+            addOption(field.id);
+        });
+    
+        container.appendChild(addOptionBtn);
+    }
+
+      function updateFieldLabel(fieldId, newLabel) {
+        formFields = formFields.map(field => 
+          field.id === fieldId ? { ...field, label: newLabel } : field
+        );
+      }
+
+      function addOption(fieldId) {
+        formFields = formFields.map(field => {
+          if (field.id === fieldId && (field.type === 'checkbox' || field.type === 'radio')) {
+            return {
+              ...field,
+              options: [...field.options, `Option ${field.options.length + 1}`]
+            };
+          }
+          return field;
+        });
+        updateFieldsDisplay();
+      }
+
+      function updateOption(fieldId, optionIndex, newValue) {
+        formFields = formFields.map(field => {
+          if (field.id === fieldId && (field.type === 'checkbox' || field.type === 'radio')) {
+            const newOptions = [...field.options];
+            newOptions[optionIndex] = newValue;
+            return { ...field, options: newOptions };
+          }
+          return field;
+        });
+      }
+    });
+
+
+
+
+
+
+
+    // Add this JavaScript to the end of your existing script section
+
+// API functions for forms
+const API_URL = 'http://localhost:5000/api';
+
+// Create or update a form
+async function saveForm() {
+  const formData = {
+    name: formTitle.value,
+    fields: formFields
+  };
+
+  try {
+    let response;
+    let method;
+    let url = `${API_URL}/forms`;
+    
+    // If we have a form ID, update the existing form
+    if (currentFormId) {
+      method = 'PUT';
+      url = `${API_URL}/forms/${currentFormId}`;
+    } else {
+      method = 'POST';
+    }
+    
+    response = await fetch(url, {
+      method: method,
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify(formData)
+    });
+    
+    const result = await response.json();
+    
+    if (response.ok) {
+      currentFormId = result._id;
+      alert(method === 'POST' ? 'Form created successfully!' : 'Form updated successfully!');
+      return result;
+    } else {
+      throw new Error(result.message || 'Failed to save form');
+    }
+  } catch (error) {
+    console.error('Error saving form:', error);
+    alert('Failed to save form: ' + error.message);
+  }
+}
+
+// Load a form by ID
+async function loadForm(formId) {
+  try {
+    const response = await fetch(`${API_URL}/forms/${formId}`);
+    
+    if (!response.ok) {
+      throw new Error('Failed to load form');
+    }
+    
+    const form = await response.json();
+    
+    // Update the UI with form data
+    currentFormId = form._id;
+    formTitle.value = form.name;
+    formFields = form.fields;
+    updateFieldsDisplay();
+    
+    // Show form builder
+    createFormBtnContainer.style.display = 'none';
+    formNameContainer.style.display = 'none';
+    formBuilder.style.display = 'block';
+    
+    return form;
+  } catch (error) {
+    console.error('Error loading form:', error);
+    alert('Failed to load form: ' + error.message);
+  }
+}
+// Add this to your existing script section, after the form builder code
+
+// Function to render form submission view
+function renderFormSubmission(formId) {
+    // Clear the app container
+    const appContainer = document.getElementById('app');
+    appContainer.innerHTML = '';
+    
+    // Create form submission container
+    const submissionContainer = document.createElement('div');
+    submissionContainer.className = 'container';
+    
+    // Loading indicator
+    const loadingElement = document.createElement('div');
+    loadingElement.className = 'text-center';
+    loadingElement.innerHTML = '<p>Loading form...</p>';
+    submissionContainer.appendChild(loadingElement);
+    
+    appContainer.appendChild(submissionContainer);
+    
+    // Load the form
+    loadForm(formId)
+      .then(form => {
+        // Clear loading indicator
+        submissionContainer.innerHTML = '';
+        
+        // Create form header
+        const formHeader = document.createElement('div');
+        formHeader.className = 'card';
+        formHeader.innerHTML = `
+          <div class="card-header">
+            <h2 style="margin: 0;">${form.name}</h2>
+          </div>
+        `;
+        submissionContainer.appendChild(formHeader);
+        
+        // Create form fields
+        const formFieldsContainer = document.createElement('div');
+        formFieldsContainer.className = 'card';
+        formFieldsContainer.style.borderTop = 'none';
+        formFieldsContainer.style.borderTopLeftRadius = '0';
+        formFieldsContainer.style.borderTopRightRadius = '0';
+        
+        const fieldsWrapper = document.createElement('div');
+        fieldsWrapper.className = 'questions-container';
+        
+        // Render each field
+        form.fields.forEach(field => {
+          const fieldElement = createSubmissionFieldElement(field);
+          fieldsWrapper.appendChild(fieldElement);
+        });
+        
+        formFieldsContainer.appendChild(fieldsWrapper);
+        submissionContainer.appendChild(formFieldsContainer);
+        
+        // Add submit button
+        const submitButtonContainer = document.createElement('div');
+        submitButtonContainer.className = 'flex-end';
+        submitButtonContainer.style.marginTop = '24px';
+        
+        const submitButton = document.createElement('button');
+        submitButton.className = 'btn btn-blue';
+        submitButton.textContent = 'Submit';
+        submitButton.addEventListener('click', () => submitResponse(form._id));
+        
+        submitButtonContainer.appendChild(submitButton);
+        submissionContainer.appendChild(submitButtonContainer);
+      })
+      .catch(error => {
+        submissionContainer.innerHTML = `
+          <div class="card">
+            <div class="card-body">
+              <p>Error loading form: ${error.message}</p>
+            </div>
+          </div>
+        `;
+      });
+  }
+  
+  // Create form field elements for submission
+  function createSubmissionFieldElement(field) {
+    const fieldCard = document.createElement('div');
+    fieldCard.className = 'question-card';
+    fieldCard.dataset.fieldId = field.id;
+    
+    // Field label
+    const fieldLabel = document.createElement('div');
+    fieldLabel.className = 'question-title';
+    fieldLabel.style.border = 'none';
+    fieldLabel.textContent = field.label;
+    fieldCard.appendChild(fieldLabel);
+    
+    // Field input
+    const fieldInput = createFieldInputElement(field);
+    fieldCard.appendChild(fieldInput);
+    
+    return fieldCard;
+  }
+  
+  // Create input elements based on field type
+  function createFieldInputElement(field) {
+    const container = document.createElement('div');
+    container.className = 'mt-3';
+    
+    switch (field.type) {
+      case 'text':
+        container.innerHTML = `
+          <input type="text" class="form-control" name="field_${field.id}" placeholder="Your answer">
+        `;
+        break;
+      case 'paragraph':
+        container.innerHTML = `
+          <textarea class="form-control" name="field_${field.id}" style="height: 96px" placeholder="Your answer"></textarea>
+        `;
+        break;
+      case 'email':
+        container.innerHTML = `
+          <input type="email" class="form-control" name="field_${field.id}" placeholder="name@example.com">
+        `;
+        break;
+      case 'number':
+        container.innerHTML = `
+          <input type="number" class="form-control" name="field_${field.id}" placeholder="0">
+        `;
+        break;
+      case 'checkbox':
+        field.options.forEach((option, index) => {
+          const optionElement = document.createElement('div');
+          optionElement.className = 'option-row';
+          optionElement.style.marginBottom = '10px';
+          
+          optionElement.innerHTML = `
+            <input type="checkbox" id="field_${field.id}_option_${index}" name="field_${field.id}" value="${index}" style="margin-right: 12px;">
+            <label for="field_${field.id}_option_${index}">${option}</label>
+          `;
+          
+          container.appendChild(optionElement);
+        });
+        break;
+      case 'radio':
+        field.options.forEach((option, index) => {
+          const optionElement = document.createElement('div');
+          optionElement.className = 'option-row';
+          optionElement.style.marginBottom = '10px';
+          
+          optionElement.innerHTML = `
+            <input type="radio" id="field_${field.id}_option_${index}" name="field_${field.id}" value="${index}" style="margin-right: 12px;">
+            <label for="field_${field.id}_option_${index}">${option}</label>
+          `;
+          
+          container.appendChild(optionElement);
+        });
+        break;
+    }
+    
+    return container;
+  }
+  
+  // Submit form response to backend
+  function submitResponse(formId) {
+    const answers = [];
+    
+    // Get all form fields
+    const fieldElements = document.querySelectorAll('.question-card');
+    
+    fieldElements.forEach(fieldElement => {
+      const fieldId = fieldElement.dataset.fieldId;
+      let value = null;
+      
+      // Find the form field in our data
+      const field = formFields.find(f => f.id == fieldId);
+      if (!field) return;
+      
+      // Get value based on field type
+      switch (field.type) {
+        case 'text':
+        case 'paragraph':
+        case 'email':
+        case 'number':
+          const input = fieldElement.querySelector(`[name="field_${fieldId}"]`);
+          value = input ? input.value : null;
+          break;
+        
+        case 'checkbox':
+          const checkboxes = fieldElement.querySelectorAll(`[name="field_${fieldId}"]:checked`);
+          if (checkboxes.length > 0) {
+            value = Array.from(checkboxes).map(cb => parseInt(cb.value));
+          }
+          break;
+        
+        case 'radio':
+          const radio = fieldElement.querySelector(`[name="field_${fieldId}"]:checked`);
+          value = radio ? parseInt(radio.value) : null;
+          break;
+      }
+      
+      answers.push({
+        fieldId: fieldId,
+        value: value
+      });
+    });
+    
+    // Submit to backend
+    submitFormResponse(formId, answers)
+      .then(response => {
+        alert('Form submitted successfully!');
+        // Redirect to forms list or home page
+        window.location.reload();
+      })
+      .catch(error => {
+        alert('Error submitting form: ' + error.message);
+      });
+  }
+  
+  // Add view form functionality to the form list
+  function displayForms(forms) {
+    const formsList = document.getElementById('forms-list');
+    formsList.innerHTML = '';
+    
+    if (forms.length === 0) {
+      formsList.innerHTML = '<p class="text-muted">No forms created yet.</p>';
+      return;
+    }
+    
+    const formItems = document.createElement('div');
+    formItems.className = 'form-items';
+    
+    forms.forEach(form => {
+      const formItem = document.createElement('div');
+      formItem.className = 'form-item';
+      formItem.style.padding = '12px';
+      formItem.style.borderBottom = '1px solid #e0e0e0';
+      formItem.style.display = 'flex';
+      formItem.style.justifyContent = 'space-between';
+      formItem.style.alignItems = 'center';
+      
+      const formName = document.createElement('div');
+      formName.className = 'form-item-name';
+      formName.style.fontSize = '16px';
+      formName.textContent = form.name;
+      
+      const formActions = document.createElement('div');
+      formActions.className = 'form-item-actions';
+      
+      const editBtn = document.createElement('button');
+      editBtn.className = 'btn btn-sm';
+      editBtn.textContent = 'Edit';
+      editBtn.addEventListener('click', () => loadForm(form._id));
+      
+      const viewBtn = document.createElement('button');
+      viewBtn.className = 'btn btn-sm';
+      viewBtn.style.marginLeft = '8px';
+      viewBtn.textContent = 'Fill Out';
+      viewBtn.addEventListener('click', () => renderFormSubmission(form._id));
+      
+      formActions.appendChild(editBtn);
+      formActions.appendChild(viewBtn);
+      formItem.appendChild(formName);
+      formItem.appendChild(formActions);
+      formItems.appendChild(formItem);
+    });
+    
+    formsList.appendChild(formItems);
+  }
+  
+  // Add a "Preview" button to the form builder
+  function addPreviewButton() {
+    if (!document.getElementById('preview-form-btn') && currentFormId) {
+      const previewBtn = document.createElement('button');
+      previewBtn.id = 'preview-form-btn';
+      previewBtn.className = 'btn';
+      previewBtn.style.marginRight = '10px';
+      previewBtn.textContent = 'Preview';
+      previewBtn.addEventListener('click', () => {
+        if (currentFormId) {
+          renderFormSubmission(currentFormId);
+        } else {
+          alert('Please save your form first before previewing.');
+        }
+      });
+      
+      // Add to form header before the save button
+      const formHeader = document.querySelector('.card-header');
+      const saveBtn = document.getElementById('save-form-btn');
+      if (saveBtn) {
+        formHeader.insertBefore(previewBtn, saveBtn);
+      } else {
+        formHeader.appendChild(previewBtn);
+      }
+    }
+  }
+  
+  // Update addSaveButton function to also add preview button
+  const originalAddSaveButton = addSaveButton;
+  addSaveButton = function() {
+    originalAddSaveButton();
+    addPreviewButton();
+  };
+  
+  // Update saveForm to add preview button after saving
+  const originalSaveForm = saveForm;
+  saveForm = async function() {
+    const result = await originalSaveForm();
+    addPreviewButton();
+    return result;
+  };
+// Get all forms
+async function getAllForms() {
+  try {
+    const response = await fetch(`${API_URL}/forms`);
+    
+    if (!response.ok) {
+      throw new Error('Failed to load forms');
+    }
+    
+    return await response.json();
+  } catch (error) {
+    console.error('Error loading forms:', error);
+    alert('Failed to load forms: ' + error.message);
+    return [];
+  }
+}
+
+// Submit form response
+async function submitFormResponse(formId, answers) {
+  try {
+    const response = await fetch(`${API_URL}/responses`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({
+        formId: formId,
+        answers: answers
+      })
+    });
+    
+    if (!response.ok) {
+      throw new Error('Failed to submit response');
+    }
+    
+    return await response.json();
+  } catch (error) {
+    console.error('Error submitting response:', error);
+    alert('Failed to submit response: ' + error.message);
+  }
+}
+
+// Add "Save Form" button
+let currentFormId = null;
+
+function addSaveButton() {
+  // Create save button if it doesn't exist
+  if (!document.getElementById('save-form-btn')) {
+    const saveBtn = document.createElement('button');
+    saveBtn.id = 'save-form-btn';
+    saveBtn.className = 'btn btn-blue';
+    saveBtn.style.marginLeft = '10px';
+    saveBtn.textContent = 'Save Form';
+    saveBtn.addEventListener('click', saveForm);
+    
+    // Add to form header
+    const formHeader = document.querySelector('.card-header');
+    formHeader.appendChild(saveBtn);
+  }
+}
+
+// Modify handleFormNameSubmit function to add save button
+const originalHandleFormNameSubmit = handleFormNameSubmit;
+handleFormNameSubmit = function(e) {
+  originalHandleFormNameSubmit(e);
+  addSaveButton();
+};
+
+// Create a forms list page
+function createFormsList() {
+  const container = document.getElementById('app');
+  
+  // Create a container for forms list
+  const formsListContainer = document.createElement('div');
+  formsListContainer.id = 'forms-list-container';
+  formsListContainer.className = 'card';
+  formsListContainer.style.display = 'none';
+  
+  const formsListHeader = document.createElement('div');
+  formsListHeader.className = 'card-header';
+  formsListHeader.innerHTML = '<h2 style="margin: 0;">My Forms</h2>';
+  
+  const formsListBody = document.createElement('div');
+  formsListBody.className = 'card-body';
+  formsListBody.id = 'forms-list';
+  
+  const newFormBtn = document.createElement('button');
+  newFormBtn.className = 'btn btn-blue';
+  newFormBtn.textContent = 'Create New Form';
+  newFormBtn.addEventListener('click', () => {
+    formsListContainer.style.display = 'none';
+    createFormBtnContainer.style.display = 'block';
+  });
+  
+  formsListHeader.appendChild(newFormBtn);
+  formsListContainer.appendChild(formsListHeader);
+  formsListContainer.appendChild(formsListBody);
+  
+  container.appendChild(formsListContainer);
+  
+  // Add "My Forms" button to the create form container
+  const myFormsBtn = document.createElement('button');
+  myFormsBtn.id = 'my-forms-btn';
+  myFormsBtn.className = 'btn';
+  myFormsBtn.style.marginTop = '10px';
+  myFormsBtn.textContent = 'View My Forms';
+  myFormsBtn.addEventListener('click', async () => {
+    createFormBtnContainer.style.display = 'none';
+    formNameContainer.style.display = 'none';
+    formBuilder.style.display = 'none';
+    
+    // Load and display forms
+    const forms = await getAllForms();
+    displayForms(forms);
+    
+    formsListContainer.style.display = 'block';
+  });
+  
+  createFormBtnContainer.appendChild(myFormsBtn);
+}
+
+// Display forms in the list
+function displayForms(forms) {
+  const formsList = document.getElementById('forms-list');
+  formsList.innerHTML = '';
+  
+  if (forms.length === 0) {
+    formsList.innerHTML = '<p class="text-muted">No forms created yet.</p>';
+    return;
+  }
+  
+  const formItems = document.createElement('div');
+  formItems.className = 'form-items';
+  
+  forms.forEach(form => {
+    const formItem = document.createElement('div');
+    formItem.className = 'form-item';
+    formItem.style.padding = '12px';
+    formItem.style.borderBottom = '1px solid #e0e0e0';
+    formItem.style.display = 'flex';
+    formItem.style.justifyContent = 'space-between';
+    formItem.style.alignItems = 'center';
+    
+    const formName = document.createElement('div');
+    formName.className = 'form-item-name';
+    formName.style.fontSize = '16px';
+    formName.textContent = form.name;
+    
+    const formActions = document.createElement('div');
+    formActions.className = 'form-item-actions';
+    
+    const editBtn = document.createElement('button');
+    editBtn.className = 'btn btn-sm';
+    editBtn.textContent = 'Edit';
+    editBtn.addEventListener('click', () => loadForm(form._id));
+    
+    formActions.appendChild(editBtn);
+    formItem.appendChild(formName);
+    formItem.appendChild(formActions);
+    formItems.appendChild(formItem);
+  });
+  
+  formsList.appendChild(formItems);
+}
+
+// Initialize the forms list
+createFormsList();
+  </script>
+</body>
+</html>
