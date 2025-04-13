@@ -278,8 +278,61 @@
 
     .submit-button-container {
       margin-top: 24px;
-      text-align: right; /* Changed from center to right */
-      display: block; /* Make it always visible */
+      text-align: right;
+      display: block;
+    }
+    
+    .loading-overlay {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background-color: rgba(255, 255, 255, 0.8);
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      z-index: 1000;
+    }
+    
+    .spinner {
+      border: 4px solid #f3f3f3;
+      border-top: 4px solid #1a73e8;
+      border-radius: 50%;
+      width: 40px;
+      height: 40px;
+      animation: spin 1s linear infinite;
+    }
+    
+    @keyframes spin {
+      0% { transform: rotate(0deg); }
+      100% { transform: rotate(360deg); }
+    }
+    
+    .notification {
+      position: fixed;
+      top: 20px;
+      right: 20px;
+      padding: 15px 20px;
+      border-radius: 4px;
+      color: white;
+      font-weight: 500;
+      box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+      z-index: 1000;
+      transform: translateY(-100px);
+      transition: transform 0.3s ease-out;
+    }
+    
+    .notification.success {
+      background-color: #4CAF50;
+    }
+    
+    .notification.error {
+      background-color: #F44336;
+    }
+    
+    .notification.show {
+      transform: translateY(0);
     }
   </style>
 </head>
@@ -345,13 +398,22 @@
           <button id="submit-form-btn" class="btn">Submit</button>
         </div>
       </div>
-      
     </div>
     
+    <!-- Loading overlay -->
+    <div id="loading-overlay" class="loading-overlay" style="display: none;">
+      <div class="spinner"></div>
+    </div>
+    
+    <!-- Notification -->
+    <div id="notification" class="notification"></div>
   </div>
 
   <script>
     document.addEventListener('DOMContentLoaded', () => {
+      // API endpoint
+      const API_URL = 'http://localhost:3000/api';
+      
       // DOM Elements
       const createFormBtnContainer = document.getElementById('create-form-btn-container');
       const createFormBtn = document.getElementById('create-form-btn');
@@ -365,6 +427,8 @@
       const fieldsContainer = document.getElementById('fields-container');
       const submitButtonContainer = document.getElementById('submit-button-container');
       const submitFormBtn = document.getElementById('submit-form-btn');
+      const loadingOverlay = document.getElementById('loading-overlay');
+      const notification = document.getElementById('notification');
 
       // State
       let formFields = [];
@@ -417,7 +481,7 @@
 
       function addField(fieldType) {
         const newField = {
-          id: Date.now(),
+          id: Date.now().toString(),
           type: fieldType,
           label: getDefaultLabel(fieldType),
           options: (fieldType === 'radio' || fieldType === 'checkbox') ? ['Option 1'] : []
@@ -613,24 +677,90 @@
           return field;
         });
       }
+      
+      // Show loading overlay
+      function showLoading() {
+        loadingOverlay.style.display = 'flex';
+      }
+      
+      // Hide loading overlay
+      function hideLoading() {
+        loadingOverlay.style.display = 'none';
+      }
+      
+      // Show notification
+      function showNotification(message, type) {
+        notification.textContent = message;
+        notification.className = `notification ${type}`;
+        notification.classList.add('show');
+        
+        setTimeout(() => {
+          notification.classList.remove('show');
+        }, 3000);
+      }
 
       // Handle form submission
-      function handleFormSubmit() {
-        // Clear the app container
-        const appContainer = document.getElementById('app');
-        appContainer.innerHTML = '';
+      async function handleFormSubmit() {
+        // Validate form
+        if (formFields.length === 0) {
+          showNotification('Please add at least one field to your form', 'error');
+          return;
+        }
         
-        // Create success message container
-        const successContainer = document.createElement('div');
-        successContainer.className = 'container';
-        successContainer.innerHTML = `
-          <div class="card" style="margin-top: 50px; text-align: center; padding: 50px;">
-            <h2 style="margin-top: 20px;">Successfully form submitted</h2>
-            <button class="btn" style="margin-top: 30px;" onclick="window.location.reload()">Create Another Form</button>
-          </div>
-        `;
+        // Show loading
+        showLoading();
         
-        appContainer.appendChild(successContainer);
+        try {
+          // Prepare data for backend
+          const formData = {
+            title: formTitle.value,
+            fields: formFields
+          };
+          
+          // Send data to backend
+          const response = await fetch(`${API_URL}/forms`, {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json'
+            },
+            body: JSON.stringify(formData)
+          });
+          
+          if (!response.ok) {
+            throw new Error('Failed to save form');
+          }
+          
+          const savedForm = await response.json();
+          
+          // Hide loading
+          hideLoading();
+          
+          // Show success message
+          showNotification('Form saved successfully!', 'success');
+          
+          // Clear the app container
+          const appContainer = document.getElementById('app');
+          appContainer.innerHTML = '';
+          
+          // Create success message container
+          const successContainer = document.createElement('div');
+          successContainer.className = 'container';
+          successContainer.innerHTML = `
+            <div class="card" style="margin-top: 50px; text-align: center; padding: 50px;">
+              <h2 style="margin-top: 20px;">Form Submitted Successfully!</h2>
+              <p>Your form "${formTitle.value}" has been saved to the database.</p>
+              <p>Form ID: ${savedForm._id}</p>
+              <button class="btn" style="margin-top: 30px;" onclick="window.location.reload()">Create Another Form</button>
+            </div>
+          `;
+          
+          appContainer.appendChild(successContainer);
+          
+        } catch (error) {
+          console.error('Error submitting form:', error);
+          hideLoading();
+          showNotification('Error saving form: ' + error.message, 'error');
+        }
       }
     });
   </script>
