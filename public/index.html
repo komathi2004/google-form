@@ -275,6 +275,12 @@
       text-align: center;
       color: #5f6368;
     }
+
+    .submit-button-container {
+      margin-top: 24px;
+      text-align: right; /* Changed from center to right */
+      display: block; /* Make it always visible */
+    }
   </style>
 </head>
 <body>
@@ -333,6 +339,11 @@
             Click the + button to add your first field
           </div>
         </div>
+        
+        <!-- Submit button container -->
+        <div id="submit-button-container" class="submit-button-container" style="display: none; padding: 0 24px 24px 24px;">
+          <button id="submit-form-btn" class="btn">Submit</button>
+        </div>
       </div>
       
     </div>
@@ -352,14 +363,17 @@
       const addFieldBtn = document.getElementById('add-field-btn');
       const fieldDropdown = document.getElementById('field-dropdown');
       const fieldsContainer = document.getElementById('fields-container');
+      const submitButtonContainer = document.getElementById('submit-button-container');
+      const submitFormBtn = document.getElementById('submit-form-btn');
 
       // State
       let formFields = [];
-//done
+
       // Event Listeners
       createFormBtn.addEventListener('click', startFormCreation);
       formNameForm.addEventListener('submit', handleFormNameSubmit);
       addFieldBtn.addEventListener('click', toggleFieldOptions);
+      submitFormBtn.addEventListener('click', handleFormSubmit);
       
       // Add field type buttons
       document.querySelectorAll('.dropdown-item').forEach(item => {
@@ -429,17 +443,21 @@
       function updateFieldsDisplay() {
         // Clear the container
         fieldsContainer.innerHTML = '';
-
+      
         if (formFields.length === 0) {
           fieldsContainer.innerHTML = '<div class="empty-state">Click the + button to add your first field</div>';
+          submitButtonContainer.style.display = 'none';
           return;
         }
-
+      
         // Create field elements
         formFields.forEach(field => {
           const fieldElement = createFieldElement(field);
           fieldsContainer.appendChild(fieldElement);
         });
+      
+        // Show submit button if there are any fields
+        submitButtonContainer.style.display = formFields.length > 0 ? 'block' : 'none';
       }
 
       function createFieldElement(field) {
@@ -564,7 +582,7 @@
         });
     
         container.appendChild(addOptionBtn);
-    }
+      }
 
       function updateFieldLabel(fieldId, newLabel) {
         formFields = formFields.map(field => 
@@ -595,563 +613,26 @@
           return field;
         });
       }
-    });
 
-
-
-
-
-
-
-    // Add this JavaScript to the end of your existing script section
-
-// API functions for forms
-const API_URL = 'http://localhost:5000/api';
-
-// Create or update a form
-async function saveForm() {
-  const formData = {
-    name: formTitle.value,
-    fields: formFields
-  };
-
-  try {
-    let response;
-    let method;
-    let url = `${API_URL}/forms`;
-    
-    // If we have a form ID, update the existing form
-    if (currentFormId) {
-      method = 'PUT';
-      url = `${API_URL}/forms/${currentFormId}`;
-    } else {
-      method = 'POST';
-    }
-    
-    response = await fetch(url, {
-      method: method,
-      headers: {
-        'Content-Type': 'application/json'
-      },
-      body: JSON.stringify(formData)
-    });
-    
-    const result = await response.json();
-    
-    if (response.ok) {
-      currentFormId = result._id;
-      alert(method === 'POST' ? 'Form created successfully!' : 'Form updated successfully!');
-      return result;
-    } else {
-      throw new Error(result.message || 'Failed to save form');
-    }
-  } catch (error) {
-    console.error('Error saving form:', error);
-    alert('Failed to save form: ' + error.message);
-  }
-}
-
-// Load a form by ID
-async function loadForm(formId) {
-  try {
-    const response = await fetch(`${API_URL}/forms/${formId}`);
-    
-    if (!response.ok) {
-      throw new Error('Failed to load form');
-    }
-    
-    const form = await response.json();
-    
-    // Update the UI with form data
-    currentFormId = form._id;
-    formTitle.value = form.name;
-    formFields = form.fields;
-    updateFieldsDisplay();
-    
-    // Show form builder
-    createFormBtnContainer.style.display = 'none';
-    formNameContainer.style.display = 'none';
-    formBuilder.style.display = 'block';
-    
-    return form;
-  } catch (error) {
-    console.error('Error loading form:', error);
-    alert('Failed to load form: ' + error.message);
-  }
-}
-// Add this to your existing script section, after the form builder code
-
-// Function to render form submission view
-function renderFormSubmission(formId) {
-    // Clear the app container
-    const appContainer = document.getElementById('app');
-    appContainer.innerHTML = '';
-    
-    // Create form submission container
-    const submissionContainer = document.createElement('div');
-    submissionContainer.className = 'container';
-    
-    // Loading indicator
-    const loadingElement = document.createElement('div');
-    loadingElement.className = 'text-center';
-    loadingElement.innerHTML = '<p>Loading form...</p>';
-    submissionContainer.appendChild(loadingElement);
-    
-    appContainer.appendChild(submissionContainer);
-    
-    // Load the form
-    loadForm(formId)
-      .then(form => {
-        // Clear loading indicator
-        submissionContainer.innerHTML = '';
+      // Handle form submission
+      function handleFormSubmit() {
+        // Clear the app container
+        const appContainer = document.getElementById('app');
+        appContainer.innerHTML = '';
         
-        // Create form header
-        const formHeader = document.createElement('div');
-        formHeader.className = 'card';
-        formHeader.innerHTML = `
-          <div class="card-header">
-            <h2 style="margin: 0;">${form.name}</h2>
+        // Create success message container
+        const successContainer = document.createElement('div');
+        successContainer.className = 'container';
+        successContainer.innerHTML = `
+          <div class="card" style="margin-top: 50px; text-align: center; padding: 50px;">
+            <h2 style="margin-top: 20px;">Successfully form submitted</h2>
+            <button class="btn" style="margin-top: 30px;" onclick="window.location.reload()">Create Another Form</button>
           </div>
         `;
-        submissionContainer.appendChild(formHeader);
         
-        // Create form fields
-        const formFieldsContainer = document.createElement('div');
-        formFieldsContainer.className = 'card';
-        formFieldsContainer.style.borderTop = 'none';
-        formFieldsContainer.style.borderTopLeftRadius = '0';
-        formFieldsContainer.style.borderTopRightRadius = '0';
-        
-        const fieldsWrapper = document.createElement('div');
-        fieldsWrapper.className = 'questions-container';
-        
-        // Render each field
-        form.fields.forEach(field => {
-          const fieldElement = createSubmissionFieldElement(field);
-          fieldsWrapper.appendChild(fieldElement);
-        });
-        
-        formFieldsContainer.appendChild(fieldsWrapper);
-        submissionContainer.appendChild(formFieldsContainer);
-        
-        // Add submit button
-        const submitButtonContainer = document.createElement('div');
-        submitButtonContainer.className = 'flex-end';
-        submitButtonContainer.style.marginTop = '24px';
-        
-        const submitButton = document.createElement('button');
-        submitButton.className = 'btn btn-blue';
-        submitButton.textContent = 'Submit';
-        submitButton.addEventListener('click', () => submitResponse(form._id));
-        
-        submitButtonContainer.appendChild(submitButton);
-        submissionContainer.appendChild(submitButtonContainer);
-      })
-      .catch(error => {
-        submissionContainer.innerHTML = `
-          <div class="card">
-            <div class="card-body">
-              <p>Error loading form: ${error.message}</p>
-            </div>
-          </div>
-        `;
-      });
-  }
-  
-  // Create form field elements for submission
-  function createSubmissionFieldElement(field) {
-    const fieldCard = document.createElement('div');
-    fieldCard.className = 'question-card';
-    fieldCard.dataset.fieldId = field.id;
-    
-    // Field label
-    const fieldLabel = document.createElement('div');
-    fieldLabel.className = 'question-title';
-    fieldLabel.style.border = 'none';
-    fieldLabel.textContent = field.label;
-    fieldCard.appendChild(fieldLabel);
-    
-    // Field input
-    const fieldInput = createFieldInputElement(field);
-    fieldCard.appendChild(fieldInput);
-    
-    return fieldCard;
-  }
-  
-  // Create input elements based on field type
-  function createFieldInputElement(field) {
-    const container = document.createElement('div');
-    container.className = 'mt-3';
-    
-    switch (field.type) {
-      case 'text':
-        container.innerHTML = `
-          <input type="text" class="form-control" name="field_${field.id}" placeholder="Your answer">
-        `;
-        break;
-      case 'paragraph':
-        container.innerHTML = `
-          <textarea class="form-control" name="field_${field.id}" style="height: 96px" placeholder="Your answer"></textarea>
-        `;
-        break;
-      case 'email':
-        container.innerHTML = `
-          <input type="email" class="form-control" name="field_${field.id}" placeholder="name@example.com">
-        `;
-        break;
-      case 'number':
-        container.innerHTML = `
-          <input type="number" class="form-control" name="field_${field.id}" placeholder="0">
-        `;
-        break;
-      case 'checkbox':
-        field.options.forEach((option, index) => {
-          const optionElement = document.createElement('div');
-          optionElement.className = 'option-row';
-          optionElement.style.marginBottom = '10px';
-          
-          optionElement.innerHTML = `
-            <input type="checkbox" id="field_${field.id}_option_${index}" name="field_${field.id}" value="${index}" style="margin-right: 12px;">
-            <label for="field_${field.id}_option_${index}">${option}</label>
-          `;
-          
-          container.appendChild(optionElement);
-        });
-        break;
-      case 'radio':
-        field.options.forEach((option, index) => {
-          const optionElement = document.createElement('div');
-          optionElement.className = 'option-row';
-          optionElement.style.marginBottom = '10px';
-          
-          optionElement.innerHTML = `
-            <input type="radio" id="field_${field.id}_option_${index}" name="field_${field.id}" value="${index}" style="margin-right: 12px;">
-            <label for="field_${field.id}_option_${index}">${option}</label>
-          `;
-          
-          container.appendChild(optionElement);
-        });
-        break;
-    }
-    
-    return container;
-  }
-  
-  // Submit form response to backend
-  function submitResponse(formId) {
-    const answers = [];
-    
-    // Get all form fields
-    const fieldElements = document.querySelectorAll('.question-card');
-    
-    fieldElements.forEach(fieldElement => {
-      const fieldId = fieldElement.dataset.fieldId;
-      let value = null;
-      
-      // Find the form field in our data
-      const field = formFields.find(f => f.id == fieldId);
-      if (!field) return;
-      
-      // Get value based on field type
-      switch (field.type) {
-        case 'text':
-        case 'paragraph':
-        case 'email':
-        case 'number':
-          const input = fieldElement.querySelector(`[name="field_${fieldId}"]`);
-          value = input ? input.value : null;
-          break;
-        
-        case 'checkbox':
-          const checkboxes = fieldElement.querySelectorAll(`[name="field_${fieldId}"]:checked`);
-          if (checkboxes.length > 0) {
-            value = Array.from(checkboxes).map(cb => parseInt(cb.value));
-          }
-          break;
-        
-        case 'radio':
-          const radio = fieldElement.querySelector(`[name="field_${fieldId}"]:checked`);
-          value = radio ? parseInt(radio.value) : null;
-          break;
+        appContainer.appendChild(successContainer);
       }
-      
-      answers.push({
-        fieldId: fieldId,
-        value: value
-      });
     });
-    
-    // Submit to backend
-    submitFormResponse(formId, answers)
-      .then(response => {
-        alert('Form submitted successfully!');
-        // Redirect to forms list or home page
-        window.location.reload();
-      })
-      .catch(error => {
-        alert('Error submitting form: ' + error.message);
-      });
-  }
-  
-  // Add view form functionality to the form list
-  function displayForms(forms) {
-    const formsList = document.getElementById('forms-list');
-    formsList.innerHTML = '';
-    
-    if (forms.length === 0) {
-      formsList.innerHTML = '<p class="text-muted">No forms created yet.</p>';
-      return;
-    }
-    
-    const formItems = document.createElement('div');
-    formItems.className = 'form-items';
-    
-    forms.forEach(form => {
-      const formItem = document.createElement('div');
-      formItem.className = 'form-item';
-      formItem.style.padding = '12px';
-      formItem.style.borderBottom = '1px solid #e0e0e0';
-      formItem.style.display = 'flex';
-      formItem.style.justifyContent = 'space-between';
-      formItem.style.alignItems = 'center';
-      
-      const formName = document.createElement('div');
-      formName.className = 'form-item-name';
-      formName.style.fontSize = '16px';
-      formName.textContent = form.name;
-      
-      const formActions = document.createElement('div');
-      formActions.className = 'form-item-actions';
-      
-      const editBtn = document.createElement('button');
-      editBtn.className = 'btn btn-sm';
-      editBtn.textContent = 'Edit';
-      editBtn.addEventListener('click', () => loadForm(form._id));
-      
-      const viewBtn = document.createElement('button');
-      viewBtn.className = 'btn btn-sm';
-      viewBtn.style.marginLeft = '8px';
-      viewBtn.textContent = 'Fill Out';
-      viewBtn.addEventListener('click', () => renderFormSubmission(form._id));
-      
-      formActions.appendChild(editBtn);
-      formActions.appendChild(viewBtn);
-      formItem.appendChild(formName);
-      formItem.appendChild(formActions);
-      formItems.appendChild(formItem);
-    });
-    
-    formsList.appendChild(formItems);
-  }
-  
-  // Add a "Preview" button to the form builder
-  function addPreviewButton() {
-    if (!document.getElementById('preview-form-btn') && currentFormId) {
-      const previewBtn = document.createElement('button');
-      previewBtn.id = 'preview-form-btn';
-      previewBtn.className = 'btn';
-      previewBtn.style.marginRight = '10px';
-      previewBtn.textContent = 'Preview';
-      previewBtn.addEventListener('click', () => {
-        if (currentFormId) {
-          renderFormSubmission(currentFormId);
-        } else {
-          alert('Please save your form first before previewing.');
-        }
-      });
-      
-      // Add to form header before the save button
-      const formHeader = document.querySelector('.card-header');
-      const saveBtn = document.getElementById('save-form-btn');
-      if (saveBtn) {
-        formHeader.insertBefore(previewBtn, saveBtn);
-      } else {
-        formHeader.appendChild(previewBtn);
-      }
-    }
-  }
-  
-  // Update addSaveButton function to also add preview button
-  const originalAddSaveButton = addSaveButton;
-  addSaveButton = function() {
-    originalAddSaveButton();
-    addPreviewButton();
-  };
-  
-  // Update saveForm to add preview button after saving
-  const originalSaveForm = saveForm;
-  saveForm = async function() {
-    const result = await originalSaveForm();
-    addPreviewButton();
-    return result;
-  };
-// Get all forms
-async function getAllForms() {
-  try {
-    const response = await fetch(`${API_URL}/forms`);
-    
-    if (!response.ok) {
-      throw new Error('Failed to load forms');
-    }
-    
-    return await response.json();
-  } catch (error) {
-    console.error('Error loading forms:', error);
-    alert('Failed to load forms: ' + error.message);
-    return [];
-  }
-}
-
-// Submit form response
-async function submitFormResponse(formId, answers) {
-  try {
-    const response = await fetch(`${API_URL}/responses`, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json'
-      },
-      body: JSON.stringify({
-        formId: formId,
-        answers: answers
-      })
-    });
-    
-    if (!response.ok) {
-      throw new Error('Failed to submit response');
-    }
-    
-    return await response.json();
-  } catch (error) {
-    console.error('Error submitting response:', error);
-    alert('Failed to submit response: ' + error.message);
-  }
-}
-
-// Add "Save Form" button
-let currentFormId = null;
-
-function addSaveButton() {
-  // Create save button if it doesn't exist
-  if (!document.getElementById('save-form-btn')) {
-    const saveBtn = document.createElement('button');
-    saveBtn.id = 'save-form-btn';
-    saveBtn.className = 'btn btn-blue';
-    saveBtn.style.marginLeft = '10px';
-    saveBtn.textContent = 'Save Form';
-    saveBtn.addEventListener('click', saveForm);
-    
-    // Add to form header
-    const formHeader = document.querySelector('.card-header');
-    formHeader.appendChild(saveBtn);
-  }
-}
-
-// Modify handleFormNameSubmit function to add save button
-const originalHandleFormNameSubmit = handleFormNameSubmit;
-handleFormNameSubmit = function(e) {
-  originalHandleFormNameSubmit(e);
-  addSaveButton();
-};
-
-// Create a forms list page
-function createFormsList() {
-  const container = document.getElementById('app');
-  
-  // Create a container for forms list
-  const formsListContainer = document.createElement('div');
-  formsListContainer.id = 'forms-list-container';
-  formsListContainer.className = 'card';
-  formsListContainer.style.display = 'none';
-  
-  const formsListHeader = document.createElement('div');
-  formsListHeader.className = 'card-header';
-  formsListHeader.innerHTML = '<h2 style="margin: 0;">My Forms</h2>';
-  
-  const formsListBody = document.createElement('div');
-  formsListBody.className = 'card-body';
-  formsListBody.id = 'forms-list';
-  
-  const newFormBtn = document.createElement('button');
-  newFormBtn.className = 'btn btn-blue';
-  newFormBtn.textContent = 'Create New Form';
-  newFormBtn.addEventListener('click', () => {
-    formsListContainer.style.display = 'none';
-    createFormBtnContainer.style.display = 'block';
-  });
-  
-  formsListHeader.appendChild(newFormBtn);
-  formsListContainer.appendChild(formsListHeader);
-  formsListContainer.appendChild(formsListBody);
-  
-  container.appendChild(formsListContainer);
-  
-  // Add "My Forms" button to the create form container
-  const myFormsBtn = document.createElement('button');
-  myFormsBtn.id = 'my-forms-btn';
-  myFormsBtn.className = 'btn';
-  myFormsBtn.style.marginTop = '10px';
-  myFormsBtn.textContent = 'View My Forms';
-  myFormsBtn.addEventListener('click', async () => {
-    createFormBtnContainer.style.display = 'none';
-    formNameContainer.style.display = 'none';
-    formBuilder.style.display = 'none';
-    
-    // Load and display forms
-    const forms = await getAllForms();
-    displayForms(forms);
-    
-    formsListContainer.style.display = 'block';
-  });
-  
-  createFormBtnContainer.appendChild(myFormsBtn);
-}
-
-// Display forms in the list
-function displayForms(forms) {
-  const formsList = document.getElementById('forms-list');
-  formsList.innerHTML = '';
-  
-  if (forms.length === 0) {
-    formsList.innerHTML = '<p class="text-muted">No forms created yet.</p>';
-    return;
-  }
-  
-  const formItems = document.createElement('div');
-  formItems.className = 'form-items';
-  
-  forms.forEach(form => {
-    const formItem = document.createElement('div');
-    formItem.className = 'form-item';
-    formItem.style.padding = '12px';
-    formItem.style.borderBottom = '1px solid #e0e0e0';
-    formItem.style.display = 'flex';
-    formItem.style.justifyContent = 'space-between';
-    formItem.style.alignItems = 'center';
-    
-    const formName = document.createElement('div');
-    formName.className = 'form-item-name';
-    formName.style.fontSize = '16px';
-    formName.textContent = form.name;
-    
-    const formActions = document.createElement('div');
-    formActions.className = 'form-item-actions';
-    
-    const editBtn = document.createElement('button');
-    editBtn.className = 'btn btn-sm';
-    editBtn.textContent = 'Edit';
-    editBtn.addEventListener('click', () => loadForm(form._id));
-    
-    formActions.appendChild(editBtn);
-    formItem.appendChild(formName);
-    formItem.appendChild(formActions);
-    formItems.appendChild(formItem);
-  });
-  
-  formsList.appendChild(formItems);
-}
-
-// Initialize the forms list
-createFormsList();
   </script>
 </body>
 </html>
