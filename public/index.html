@@ -11,7 +11,6 @@
       margin: 0;
       padding: 0;
     }
-
     .container {
       max-width: 768px;
       margin: 0 auto;
@@ -411,8 +410,8 @@
 
   <script>
     document.addEventListener('DOMContentLoaded', () => {
-      // API endpoint
-      const API_URL = 'http://localhost:3000/api';
+      // API endpoint - UPDATED to use your deployed backend
+      const API_URL = 'https://googleform-backend-5.onrender.com/api';
       
       // DOM Elements
       const createFormBtnContainer = document.getElementById('create-form-btn-container');
@@ -586,7 +585,7 @@
         field.options.forEach((option, index) => {
             const optionRow = document.createElement('div');
             optionRow.className = 'option-row';
-    //done
+    
             const optionIndicator = document.createElement('div');
             if (type === 'radio') {
                 optionIndicator.className = 'radio-dot';
